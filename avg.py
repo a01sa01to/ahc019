@@ -16,8 +16,7 @@ for i in range(1, FILES + 1):
         flg = False
         lines = f.readlines()
         for line in lines:
-            # if line.count("Score ="):
-            if line.count("Cost ="):
+            if line.count("Score ="):
                 t = int(line.split(" = ")[1])
                 flg = True
                 if(t):

@@ -17,7 +17,7 @@ for i in {1..100}; do
   echo Running Test $i...
   ../target/debug/a < in/$i.txt 1> out/$i.txt 2> err/$i.txt
   echo Running visualizer...
-  ./target/release/vis vis in/$i.txt out/$i.txt &> res/$i.txt
+  ./target/release/vis in/$i.txt out/$i.txt &> res/$i.txt
   cat res/$i.txt
 done
 cd ..
