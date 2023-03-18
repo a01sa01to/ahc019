@@ -90,15 +90,29 @@ fn main() {
     let mut silh2r = vec![vec![false; d]; d];
     {
         let mut cnt = 0;
+        // 最重要なものを真っ先にやる
         for i in 0..d {
             for j in 0..d {
                 for k in 0..d {
-                    if ans1[i][j][k] > 0 && (!silh1f[i][k] || !silh1r[j][k]) {
+                    if ans1[i][j][k] == INF && (!silh1f[i][k] && !silh1r[j][k]) {
                         cnt += 1;
                         ans1[i][j][k] = cnt;
                         silh1f[i][k] = true;
                         silh1r[j][k] = true;
-                    } else {
+                    }
+                }
+            }
+        }
+        // その他
+        for i in 0..d {
+            for j in 0..d {
+                for k in 0..d {
+                    if ans1[i][j][k] == INF && (!silh1f[i][k] || !silh1r[j][k]) {
+                        cnt += 1;
+                        ans1[i][j][k] = cnt;
+                        silh1f[i][k] = true;
+                        silh1r[j][k] = true;
+                    } else if ans1[i][j][k] == INF {
                         ans1[i][j][k] = 0;
                     }
                 }
@@ -110,12 +124,24 @@ fn main() {
         for i in 0..d {
             for j in 0..d {
                 for k in 0..d {
-                    if ans2[i][j][k] > 0 && (!silh2f[i][k] || !silh2r[j][k]) {
+                    if ans2[i][j][k] == INF && (!silh2f[i][k] && !silh2r[j][k]) {
                         cnt += 1;
                         ans2[i][j][k] = cnt;
                         silh2f[i][k] = true;
                         silh2r[j][k] = true;
-                    } else {
+                    }
+                }
+            }
+        }
+        for i in 0..d {
+            for j in 0..d {
+                for k in 0..d {
+                    if ans2[i][j][k] == INF && (!silh2f[i][k] || !silh2r[j][k]) {
+                        cnt += 1;
+                        ans2[i][j][k] = cnt;
+                        silh2f[i][k] = true;
+                        silh2r[j][k] = true;
+                    } else if ans2[i][j][k] == INF {
                         ans2[i][j][k] = 0;
                     }
                 }

@@ -5,3 +5,11 @@ Local Score
   Minimum Score: 17,000,000,000.00 on 6
   Maximum Score: 179,000,000,000.00 on 19
   Standard Deviation: 43,523,302,953.71
+
+--- Submission 2 ---
+不要部分を消す場合の最適化 -> 2,699,000,000,000
+Local Score
+  Average Score: 50,180,000,000.00
+  Minimum Score: 12,000,000,000.00 on 58
+  Maximum Score: 126,000,000,000.00 on 92
+  Standard Deviation: 28,032,616,716.96
