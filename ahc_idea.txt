@@ -1,0 +1,7 @@
+--- Submission 1 ---
+全部 1x1x1 で埋める; 不要な部分をなるべく消す -> 3,977,000,000,000
+Local Score
+  Average Score: 72,890,000,000.00
+  Minimum Score: 17,000,000,000.00 on 6
+  Maximum Score: 179,000,000,000.00 on 19
+  Standard Deviation: 43,523,302,953.71
