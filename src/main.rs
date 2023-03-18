@@ -88,26 +88,36 @@ fn main() {
     let mut silh1r = vec![vec![false; d]; d];
     let mut silh2f = vec![vec![false; d]; d];
     let mut silh2r = vec![vec![false; d]; d];
-
-    let mut cnt = 0;
-    for i in 0..d {
-        for j in 0..d {
-            for k in 0..d {
-                if ans1[i][j][k] > 0 && (!silh1f[i][k] || !silh1r[j][k]) {
-                    cnt += 1;
-                    ans1[i][j][k] = cnt;
-                    silh1f[i][k] = true;
-                    silh1r[j][k] = true;
-                } else {
-                    ans1[i][j][k] = 0;
+    {
+        let mut cnt = 0;
+        for i in 0..d {
+            for j in 0..d {
+                for k in 0..d {
+                    if ans1[i][j][k] > 0 && (!silh1f[i][k] || !silh1r[j][k]) {
+                        cnt += 1;
+                        ans1[i][j][k] = cnt;
+                        silh1f[i][k] = true;
+                        silh1r[j][k] = true;
+                    } else {
+                        ans1[i][j][k] = 0;
+                    }
                 }
-                if ans2[i][j][k] > 0 && (!silh2f[i][k] || !silh2r[j][k]) {
-                    cnt += 1;
-                    ans2[i][j][k] = cnt;
-                    silh2f[i][k] = true;
-                    silh2r[j][k] = true;
-                } else {
-                    ans2[i][j][k] = 0;
+            }
+        }
+    }
+    {
+        let mut cnt = 0;
+        for i in 0..d {
+            for j in 0..d {
+                for k in 0..d {
+                    if ans2[i][j][k] > 0 && (!silh2f[i][k] || !silh2r[j][k]) {
+                        cnt += 1;
+                        ans2[i][j][k] = cnt;
+                        silh2f[i][k] = true;
+                        silh2r[j][k] = true;
+                    } else {
+                        ans2[i][j][k] = 0;
+                    }
                 }
             }
         }
