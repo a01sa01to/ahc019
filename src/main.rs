@@ -1,5 +1,8 @@
-use std::collections::HashSet;
-use std::io;
+use std::{
+    collections::HashSet,
+    io,
+    time::{Duration, Instant},
+};
 
 const INF: u32 = 1_000_000_000;
 
@@ -56,7 +59,71 @@ fn output(ans1: Vec<Vec<Vec<u32>>>, ans2: Vec<Vec<Vec<u32>>>) {
     println!("");
 }
 
+fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> bool {
+    fn normalize(b: &Vec<(usize, usize, usize)>) -> Vec<(usize, usize, usize)> {
+        let mut min_x = !0;
+        let mut min_y = !0;
+        let mut min_z = !0;
+        for &(x, y, z) in b {
+            min_x = if min_x > x { x } else { min_x };
+            min_y = if min_y > y { y } else { min_y };
+            min_z = if min_z > z { z } else { min_z };
+        }
+        b.iter()
+            .map(|&(x, y, z)| (x - min_x, y - min_y, z - min_z))
+            .collect()
+    }
+
+    if b1.len() != b2.len() {
+        return false;
+    }
+    let mut b1 = normalize(&b1);
+    let mut b2 = normalize(&b2);
+    let mut max_x = 0;
+    let mut max_y = 0;
+    let mut max_z = 0;
+    for &(x, y, z) in &b2 {
+        max_x = if max_x < x { x } else { max_x };
+        max_y = if max_y < y { y } else { max_y };
+        max_z = if max_z < z { z } else { max_z };
+    }
+    b1.sort();
+    for i in 0..6 {
+        for _ in 0..4 {
+            b2.sort();
+            if b1 == b2 {
+                return true;
+            }
+            for (x, y, _) in &mut b2 {
+                let t = *x;
+                *x = max_y - *y;
+                *y = t;
+            }
+            std::mem::swap(&mut max_x, &mut max_y);
+        }
+        if i & 1 != 0 {
+            for (_, y, z) in &mut b2 {
+                let t = *y;
+                *y = max_z - *z;
+                *z = t;
+            }
+            std::mem::swap(&mut max_y, &mut max_z);
+        } else {
+            for (x, _, z) in &mut b2 {
+                let t = *z;
+                *z = max_x - *x;
+                *x = t;
+            }
+            std::mem::swap(&mut max_x, &mut max_z);
+        }
+    }
+    false
+}
+
 fn main() {
+    // 時間計測の準備
+    let start_time = Instant::now();
+
     let (d, sil1, sil2) = input();
 
     // 答え
@@ -147,6 +214,11 @@ fn main() {
                 }
             }
         }
+    }
+
+    // 5s ぶんまわす
+    while start_time.elapsed() < Duration::from_millis(5000) {
+        // do something
     }
 
     // 出力
