@@ -174,10 +174,11 @@ fn main() {
         }
     }
 
-    let mut stats = (0, 0);
+    let mut stats = (0, 0, 0, 0);
 
     // 5s ぶんまわす
     while start_time.elapsed() < Duration::from_millis(5000) {
+        // for _ in 0..1 {
         stats.0 += 1;
         let idx1 = rng.gen_range(0, block1.len());
         let idx2 = rng.gen_range(0, block2.len());
@@ -190,86 +191,91 @@ fn main() {
         if !is_same(&block1[idx1], &block2[idx2]) {
             continue;
         }
-        let mut new_block1 = block1.clone();
-        let mut new_ans1 = ans1.clone();
+        stats.2 += 1;
 
-        let mut changed = false;
+        let mut new_block1 = block1[idx1].clone();
+        let mut changed1 = ((0, 0, 0), 998244353);
         for &(x, y, z) in &block1[idx1] {
-            for d in 0..6usize {
-                let nx = (x as i32 + DX[d]) as usize;
-                let ny = (y as i32 + DY[d]) as usize;
-                let nz = (z as i32 + DZ[d]) as usize;
+            for dir in 0..6usize {
+                let nx = (x as i32 + DX[dir]) as usize;
+                let ny = (y as i32 + DY[dir]) as usize;
+                let nz = (z as i32 + DZ[dir]) as usize;
                 // 範囲外
                 if nx >= d || ny >= d || nz >= d {
                     continue;
                 }
                 // すでに同じブロック
-                if new_ans1[nx][ny][nz] == new_ans1[x][y][z] {
+                if ans1[nx][ny][nz] == ans1[x][y][z] {
                     continue;
                 }
                 // 実装がめんどいのでとりあえず1つだけをmerge
-                if new_ans1[nx][ny][nz] > 0 {
-                    let oldidx = new_ans1[nx][ny][nz] - 1;
-                    if new_block1[oldidx].len() != 1 {
+                if ans1[nx][ny][nz] > 0 {
+                    let oldidx = ans1[nx][ny][nz] - 1;
+                    if block1[oldidx].len() != 1 {
                         continue;
                     }
-                    new_block1[idx1].push((nx, ny, nz));
-                    new_block1[oldidx].clear();
-                    new_ans1[nx][ny][nz] = idx1 + 1;
-                    changed = true;
+                    new_block1.push((nx, ny, nz));
+                    changed1 = ((nx, ny, nz), oldidx);
                     break;
                 }
             }
-            if changed {
+            if changed1.1 != 998244353 {
                 break;
             }
         }
+        if changed1.1 == 998244353 {
+            continue;
+        }
 
-        let mut new_block2 = block2.clone();
-        let mut new_ans2 = ans2.clone();
-        let mut changed = false;
+        let mut new_block2 = block2[idx2].clone();
+        let mut changed2 = ((0, 0, 0), 998244353);
         for &(x, y, z) in &block2[idx2] {
-            for d in 0..6usize {
-                let nx = (x as i32 + DX[d]) as usize;
-                let ny = (y as i32 + DY[d]) as usize;
-                let nz = (z as i32 + DZ[d]) as usize;
+            for dir in 0..6usize {
+                let nx = (x as i32 + DX[dir]) as usize;
+                let ny = (y as i32 + DY[dir]) as usize;
+                let nz = (z as i32 + DZ[dir]) as usize;
                 // 範囲外
                 if nx >= d || ny >= d || nz >= d {
                     continue;
                 }
                 // すでに同じブロック
-                if new_ans2[nx][ny][nz] == new_ans2[x][y][z] {
+                if ans2[nx][ny][nz] == ans2[x][y][z] {
                     continue;
                 }
                 // 実装がめんどいのでとりあえず1つだけをmerge
-                if new_ans2[nx][ny][nz] > 0 {
-                    let oldidx = new_ans2[nx][ny][nz] - 1;
-                    if new_block2[oldidx].len() != 1 {
+                if ans2[nx][ny][nz] > 0 {
+                    let oldidx = ans2[nx][ny][nz] - 1;
+                    if block2[oldidx].len() != 1 {
                         continue;
                     }
-                    new_block2[idx2].push((nx, ny, nz));
-                    new_block2[oldidx].clear();
-                    if is_same(&new_block1[idx1], &new_block2[idx2]) {
-                        changed = true;
+                    new_block2.push((nx, ny, nz));
+                    if is_same(&new_block1, &new_block2) {
+                        changed2 = ((nx, ny, nz), oldidx);
                         break;
                     } else {
                         // revert
-                        new_block2[idx2].pop();
-                        new_block2[oldidx].push((nx, ny, nz));
+                        new_block2.pop();
                     }
                 }
             }
-            if changed {
+            if changed2.1 != 998244353 {
                 break;
             }
         }
 
-        if changed {
-            mem::swap(&mut block1, &mut new_block1);
-            mem::swap(&mut ans1, &mut new_ans1);
-            mem::swap(&mut block2, &mut new_block2);
-            mem::swap(&mut ans2, &mut new_ans2);
+        if changed2.1 != 998244353 {
+            // apply
+            mem::swap(&mut block1[idx1], &mut new_block1);
+            mem::swap(&mut block2[idx2], &mut new_block2);
+            let (x, y, z) = changed1.0;
+            ans1[x][y][z] = idx1 + 1;
+            block1[changed1.1].clear();
+            let (x, y, z) = changed2.0;
+            ans2[x][y][z] = idx2 + 1;
+            block2[changed2.1].clear();
             stats.1 += 1;
+        } else {
+            stats.3 += 1;
         }
     }
 
@@ -311,6 +317,9 @@ fn main() {
     }
 
     // 出力
-    eprintln!("Stats: attempt={}, success={}", stats.0, stats.1);
+    eprintln!(
+        "Stats: attempt={}, success={}, initialCheckPassed={}, NotApplied={}",
+        stats.0, stats.1, stats.2, stats.3
+    );
     output(ans1, ans2);
 }
