@@ -13,3 +13,11 @@ Local Score
   Minimum Score: 12,000,000,000.00 on 58
   Maximum Score: 126,000,000,000.00 on 92
   Standard Deviation: 28,032,616,716.96
+
+--- Submission 3 ---
+山登り法っぽく、ランダムにつなげて一致するところはつなげる -> 3,911,066,666,664
+Local Score
+  Average Score: 76,743,666,666.67
+  Minimum Score: 4,333,333,333.00 on 77
+  Maximum Score: 311,750,000,000.00 on 63
+  Standard Deviation: 69,857,607,745.25
