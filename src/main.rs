@@ -178,6 +178,8 @@ fn main() {
     }
 
     // ブロックIDの修正
+    block1.retain(|b| b.len() > 0);
+    block2.retain(|b| b.len() > 0);
     for (i, b) in block1.iter().enumerate() {
         for &(x, y, z) in b {
             ans1[x][y][z] = i + 1;
