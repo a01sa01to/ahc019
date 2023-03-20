@@ -21,3 +21,10 @@ Local Score
   Minimum Score: 4,333,333,333.00 on 77
   Maximum Score: 311,750,000,000.00 on 63
   Standard Deviation: 69,857,607,745.25
+
+--- Submission 4 ---
+#3 で "見えない" 場所を消す -> 1,087,616,666,667
+Local Score
+  Average Score: 21,388,999,999.99
+  Minimum Score: 3,333,333,333.00 on 18
+  Maximum Score: 54,666,666,667.00 on 19
