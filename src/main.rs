@@ -130,10 +130,14 @@ fn update_block_id(
     ans1: &mut Vec<Vec<Vec<usize>>>,
     ans2: &mut Vec<Vec<Vec<usize>>>,
 ) {
+    // len=0を消す
     block1.retain(|b| b.len() > 0);
     block2.retain(|b| b.len() > 0);
+    // lenの大きい順にソート
     block1.sort_by_key(|b| -(b.len() as i32));
     block2.sort_by_key(|b| -(b.len() as i32));
+
+    // 対応付けする
     let mut mp = HashMap::<usize, usize>::new();
     let mut used = HashSet::<usize>::new();
     for (i2, b2) in block2.iter().enumerate() {
@@ -149,6 +153,7 @@ fn update_block_id(
         }
     }
 
+    // 答えを更新
     for (i, b) in block1.iter().enumerate() {
         for &(x, y, z) in b {
             ans1[x][y][z] = i + 1;
@@ -335,6 +340,135 @@ fn main() {
             stats.1 += 1;
         } else {
             stats.3 += 1;
+        }
+    }
+    update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
+
+    let mut filled1f = vec![vec![false; d]; d];
+    let mut filled1r = vec![vec![false; d]; d];
+    let mut filled2f = vec![vec![false; d]; d];
+    let mut filled2r = vec![vec![false; d]; d];
+    let mut todocommon = Vec::<usize>::new();
+    let mut todolater1 = Vec::<usize>::new();
+    let mut todolater2 = Vec::<usize>::new();
+    for i in 0..block1.len().max(block2.len()) {
+        let mut need_check = false;
+
+        // 片方でしか使われてないやつはスキップ
+        let mut skip = false;
+        if i >= block1.len() || block1[i].len() == 0 {
+            todolater2.push(i);
+            skip = true;
+        }
+        if i >= block2.len() || block2[i].len() == 0 {
+            todolater1.push(i);
+            skip = true;
+        }
+        if skip {
+            continue;
+        }
+
+        for &(x, y, z) in &block1[i] {
+            if !filled1f[x][z] && !filled1r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        for &(x, y, z) in &block2[i] {
+            if !filled2f[x][z] && !filled2r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        if need_check {
+            // 残す
+            for &(x, y, z) in &block1[i] {
+                filled1f[x][z] = true;
+                filled1r[y][z] = true;
+            }
+            for &(x, y, z) in &block2[i] {
+                filled2f[x][z] = true;
+                filled2r[y][z] = true;
+            }
+        } else {
+            todocommon.push(i);
+        }
+    }
+    for i in todocommon {
+        let mut need_check = false;
+
+        for &(x, y, z) in &block1[i] {
+            if !filled1f[x][z] || !filled1r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        for &(x, y, z) in &block2[i] {
+            if !filled2f[x][z] || !filled2r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        if need_check {
+            // 残す
+            for &(x, y, z) in &block1[i] {
+                filled1f[x][z] = true;
+                filled1r[y][z] = true;
+            }
+            for &(x, y, z) in &block2[i] {
+                filled2f[x][z] = true;
+                filled2r[y][z] = true;
+            }
+        } else {
+            // 消す
+            for &(x, y, z) in &block1[i] {
+                ans1[x][y][z] = 0;
+            }
+            for &(x, y, z) in &block2[i] {
+                ans2[x][y][z] = 0;
+            }
+            block1[i].clear();
+            block2[i].clear();
+        }
+    }
+    for i in todolater1 {
+        let mut need_check = false;
+        for &(x, y, z) in &block1[i] {
+            if !filled1f[x][z] || !filled1r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        if need_check {
+            for &(x, y, z) in &block1[i] {
+                filled1f[x][z] = true;
+                filled1r[y][z] = true;
+            }
+        } else {
+            for &(x, y, z) in &block1[i] {
+                ans1[x][y][z] = 0;
+            }
+            block1[i].clear();
+        }
+    }
+    for i in todolater2 {
+        let mut need_check = false;
+        for &(x, y, z) in &block2[i] {
+            if !filled2f[x][z] || !filled2r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        if need_check {
+            for &(x, y, z) in &block2[i] {
+                filled2f[x][z] = true;
+                filled2r[y][z] = true;
+            }
+        } else {
+            for &(x, y, z) in &block2[i] {
+                ans2[x][y][z] = 0;
+            }
+            block2[i].clear();
         }
     }
 
