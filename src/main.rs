@@ -124,6 +124,49 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
     false
 }
 
+fn update_block_id(
+    block1: &mut Vec<Vec<(usize, usize, usize)>>,
+    block2: &mut Vec<Vec<(usize, usize, usize)>>,
+    ans1: &mut Vec<Vec<Vec<usize>>>,
+    ans2: &mut Vec<Vec<Vec<usize>>>,
+) {
+    block1.retain(|b| b.len() > 0);
+    block2.retain(|b| b.len() > 0);
+    block1.sort_by_key(|b| -(b.len() as i32));
+    block2.sort_by_key(|b| -(b.len() as i32));
+    let mut mp = HashMap::<usize, usize>::new();
+    let mut used = HashSet::<usize>::new();
+    for (i2, b2) in block2.iter().enumerate() {
+        for (i1, b1) in block1.iter().enumerate() {
+            if used.contains(&i1) {
+                continue;
+            }
+            if is_same(b1, b2) {
+                mp.insert(i2, i1);
+                used.insert(i1);
+                break;
+            }
+        }
+    }
+
+    for (i, b) in block1.iter().enumerate() {
+        for &(x, y, z) in b {
+            ans1[x][y][z] = i + 1;
+        }
+    }
+    let mut nullcnt = 0;
+    for (i, b) in block2.iter().enumerate() {
+        for &(x, y, z) in b {
+            if mp.contains_key(&i) {
+                ans2[x][y][z] = mp.get(&i).unwrap() + 1;
+            } else {
+                nullcnt += 1;
+                ans2[x][y][z] = block1.len() + nullcnt;
+            }
+        }
+    }
+}
+
 fn main() {
     // 時間計測
     let start_time = Instant::now();
@@ -177,11 +220,27 @@ fn main() {
     let mut stats = (0, 0, 0, 0);
 
     // 5s ぶんまわす
+    // let mut idx1 = 0;
+    // let mut idx2 = 0;
+    // let mut init = true;
     while start_time.elapsed() < Duration::from_millis(5000) {
         // for _ in 0..1 {
         stats.0 += 1;
         let idx1 = rng.gen_range(0, block1.len());
         let idx2 = rng.gen_range(0, block2.len());
+
+        // if !init {
+        //     idx2 += 1;
+        // }
+        // init = false;
+        // if idx2 >= block2.len() {
+        //     idx2 = 0;
+        //     idx1 += 1;
+        // }
+        // if idx1 >= block1.len() {
+        //     break;
+        // }
+
         if block1[idx1].len() == 0 {
             continue;
         }
@@ -279,42 +338,7 @@ fn main() {
         }
     }
 
-    // ブロックIDの修正
-    block1.retain(|b| b.len() > 0);
-    block2.retain(|b| b.len() > 0);
-    block1.sort_by_key(|b| b.len());
-    block2.sort_by_key(|b| b.len());
-    let mut mp = HashMap::<usize, usize>::new();
-    let mut used = HashSet::<usize>::new();
-    for (i2, b2) in block2.iter().enumerate() {
-        for (i1, b1) in block1.iter().enumerate() {
-            if used.contains(&i1) {
-                continue;
-            }
-            if is_same(b1, b2) {
-                mp.insert(i2, i1);
-                used.insert(i1);
-                break;
-            }
-        }
-    }
-
-    for (i, b) in block1.iter().enumerate() {
-        for &(x, y, z) in b {
-            ans1[x][y][z] = i + 1;
-        }
-    }
-    let mut nullcnt = 0;
-    for (i, b) in block2.iter().enumerate() {
-        for &(x, y, z) in b {
-            if mp.contains_key(&i) {
-                ans2[x][y][z] = mp.get(&i).unwrap() + 1;
-            } else {
-                nullcnt += 1;
-                ans2[x][y][z] = block1.len() + nullcnt;
-            }
-        }
-    }
+    update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
 
     // 出力
     eprintln!(
