@@ -172,178 +172,13 @@ fn update_block_id(
     }
 }
 
-fn main() {
-    // 時間計測
-    let start_time = Instant::now();
-    // 乱数
-    let mut rng = rand::thread_rng();
-
-    let (d, sil1, sil2) = input();
-
-    // 答え
-    let mut ans1 = vec![vec![vec![INF; d]; d]; d];
-    let mut ans2 = vec![vec![vec![INF; d]; d]; d];
-
-    // 絶対に削らなければいけない場所
-    for i in 0..d {
-        for j in 0..d {
-            for k in 0..d {
-                if !sil1.0[k][i] {
-                    ans1[i][j][k] = 0;
-                }
-                if !sil1.1[k][j] {
-                    ans1[i][j][k] = 0;
-                }
-                if !sil2.0[k][i] {
-                    ans2[i][j][k] = 0;
-                }
-                if !sil2.1[k][j] {
-                    ans2[i][j][k] = 0;
-                }
-            }
-        }
-    }
-
-    // 全部1x1x1としておく
-    let mut block1 = Vec::<Vec<(usize, usize, usize)>>::new();
-    let mut block2 = Vec::<Vec<(usize, usize, usize)>>::new();
-    for i in 0..d {
-        for j in 0..d {
-            for k in 0..d {
-                if ans1[i][j][k] > 0 {
-                    block1.push(vec![(i, j, k)]);
-                    ans1[i][j][k] = block1.len();
-                }
-                if ans2[i][j][k] > 0 {
-                    block2.push(vec![(i, j, k)]);
-                    ans2[i][j][k] = block2.len();
-                }
-            }
-        }
-    }
-
-    let mut stats = (0, 0, 0, 0);
-
-    // 5s ぶんまわす
-    // let mut idx1 = 0;
-    // let mut idx2 = 0;
-    // let mut init = true;
-    while start_time.elapsed() < Duration::from_millis(5000) {
-        // for _ in 0..1 {
-        stats.0 += 1;
-        let idx1 = rng.gen_range(0, block1.len());
-        let idx2 = rng.gen_range(0, block2.len());
-
-        // if !init {
-        //     idx2 += 1;
-        // }
-        // init = false;
-        // if idx2 >= block2.len() {
-        //     idx2 = 0;
-        //     idx1 += 1;
-        // }
-        // if idx1 >= block1.len() {
-        //     break;
-        // }
-
-        if block1[idx1].len() == 0 {
-            continue;
-        }
-        if block2[idx2].len() == 0 {
-            continue;
-        }
-        if !is_same(&block1[idx1], &block2[idx2]) {
-            continue;
-        }
-        stats.2 += 1;
-
-        let mut new_block1 = block1[idx1].clone();
-        let mut changed1 = ((0, 0, 0), 998244353);
-        for &(x, y, z) in &block1[idx1] {
-            for dir in 0..6usize {
-                let nx = (x as i32 + DX[dir]) as usize;
-                let ny = (y as i32 + DY[dir]) as usize;
-                let nz = (z as i32 + DZ[dir]) as usize;
-                // 範囲外
-                if nx >= d || ny >= d || nz >= d {
-                    continue;
-                }
-                // すでに同じブロック
-                if ans1[nx][ny][nz] == ans1[x][y][z] {
-                    continue;
-                }
-                // 実装がめんどいのでとりあえず1つだけをmerge
-                if ans1[nx][ny][nz] > 0 {
-                    let oldidx = ans1[nx][ny][nz] - 1;
-                    if block1[oldidx].len() != 1 {
-                        continue;
-                    }
-                    new_block1.push((nx, ny, nz));
-                    changed1 = ((nx, ny, nz), oldidx);
-                    break;
-                }
-            }
-            if changed1.1 != 998244353 {
-                break;
-            }
-        }
-        if changed1.1 == 998244353 {
-            continue;
-        }
-
-        let mut new_block2 = block2[idx2].clone();
-        let mut changed2 = ((0, 0, 0), 998244353);
-        for &(x, y, z) in &block2[idx2] {
-            for dir in 0..6usize {
-                let nx = (x as i32 + DX[dir]) as usize;
-                let ny = (y as i32 + DY[dir]) as usize;
-                let nz = (z as i32 + DZ[dir]) as usize;
-                // 範囲外
-                if nx >= d || ny >= d || nz >= d {
-                    continue;
-                }
-                // すでに同じブロック
-                if ans2[nx][ny][nz] == ans2[x][y][z] {
-                    continue;
-                }
-                // 実装がめんどいのでとりあえず1つだけをmerge
-                if ans2[nx][ny][nz] > 0 {
-                    let oldidx = ans2[nx][ny][nz] - 1;
-                    if block2[oldidx].len() != 1 {
-                        continue;
-                    }
-                    new_block2.push((nx, ny, nz));
-                    if is_same(&new_block1, &new_block2) {
-                        changed2 = ((nx, ny, nz), oldidx);
-                        break;
-                    } else {
-                        // revert
-                        new_block2.pop();
-                    }
-                }
-            }
-            if changed2.1 != 998244353 {
-                break;
-            }
-        }
-
-        if changed2.1 != 998244353 {
-            // apply
-            mem::swap(&mut block1[idx1], &mut new_block1);
-            mem::swap(&mut block2[idx2], &mut new_block2);
-            let (x, y, z) = changed1.0;
-            ans1[x][y][z] = idx1 + 1;
-            block1[changed1.1].clear();
-            let (x, y, z) = changed2.0;
-            ans2[x][y][z] = idx2 + 1;
-            block2[changed2.1].clear();
-            stats.1 += 1;
-        } else {
-            stats.3 += 1;
-        }
-    }
-    update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
-
+fn remove_invisible_blocks(
+    d: usize,
+    block1: &mut Vec<Vec<(usize, usize, usize)>>,
+    block2: &mut Vec<Vec<(usize, usize, usize)>>,
+    ans1: &mut Vec<Vec<Vec<usize>>>,
+    ans2: &mut Vec<Vec<Vec<usize>>>,
+) {
     let mut filled1f = vec![vec![false; d]; d];
     let mut filled1r = vec![vec![false; d]; d];
     let mut filled2f = vec![vec![false; d]; d];
@@ -471,7 +306,164 @@ fn main() {
             block2[i].clear();
         }
     }
+}
 
+fn main() {
+    // 時間計測
+    let start_time = Instant::now();
+    // 乱数
+    let mut rng = rand::thread_rng();
+
+    let (d, sil1, sil2) = input();
+
+    // 答え
+    let mut ans1 = vec![vec![vec![INF; d]; d]; d];
+    let mut ans2 = vec![vec![vec![INF; d]; d]; d];
+
+    // 絶対に削らなければいけない場所
+    for i in 0..d {
+        for j in 0..d {
+            for k in 0..d {
+                if !sil1.0[k][i] {
+                    ans1[i][j][k] = 0;
+                }
+                if !sil1.1[k][j] {
+                    ans1[i][j][k] = 0;
+                }
+                if !sil2.0[k][i] {
+                    ans2[i][j][k] = 0;
+                }
+                if !sil2.1[k][j] {
+                    ans2[i][j][k] = 0;
+                }
+            }
+        }
+    }
+
+    // 全部1x1x1としておく
+    let mut block1 = Vec::<Vec<(usize, usize, usize)>>::new();
+    let mut block2 = Vec::<Vec<(usize, usize, usize)>>::new();
+    for i in 0..d {
+        for j in 0..d {
+            for k in 0..d {
+                if ans1[i][j][k] > 0 {
+                    block1.push(vec![(i, j, k)]);
+                    ans1[i][j][k] = block1.len();
+                }
+                if ans2[i][j][k] > 0 {
+                    block2.push(vec![(i, j, k)]);
+                    ans2[i][j][k] = block2.len();
+                }
+            }
+        }
+    }
+
+    let mut stats = (0, 0, 0, 0);
+
+    // 5s ぶんまわす
+    while start_time.elapsed() < Duration::from_millis(5000) {
+        stats.0 += 1;
+        let idx1 = rng.gen_range(0, block1.len());
+        let idx2 = rng.gen_range(0, block2.len());
+
+        if block1[idx1].len() == 0 {
+            continue;
+        }
+        if block2[idx2].len() == 0 {
+            continue;
+        }
+        if !is_same(&block1[idx1], &block2[idx2]) {
+            continue;
+        }
+        stats.2 += 1;
+
+        let mut new_block1 = block1[idx1].clone();
+        let mut changed1 = ((0, 0, 0), 998244353);
+        for &(x, y, z) in &block1[idx1] {
+            for dir in 0..6usize {
+                let nx = (x as i32 + DX[dir]) as usize;
+                let ny = (y as i32 + DY[dir]) as usize;
+                let nz = (z as i32 + DZ[dir]) as usize;
+                // 範囲外
+                if nx >= d || ny >= d || nz >= d {
+                    continue;
+                }
+                // すでに同じブロック
+                if ans1[nx][ny][nz] == ans1[x][y][z] {
+                    continue;
+                }
+                // 実装がめんどいのでとりあえず1つだけをmerge
+                if ans1[nx][ny][nz] > 0 {
+                    let oldidx = ans1[nx][ny][nz] - 1;
+                    if block1[oldidx].len() != 1 {
+                        continue;
+                    }
+                    new_block1.push((nx, ny, nz));
+                    changed1 = ((nx, ny, nz), oldidx);
+                    break;
+                }
+            }
+            if changed1.1 != 998244353 {
+                break;
+            }
+        }
+        if changed1.1 == 998244353 {
+            continue;
+        }
+
+        let mut new_block2 = block2[idx2].clone();
+        let mut changed2 = ((0, 0, 0), 998244353);
+        for &(x, y, z) in &block2[idx2] {
+            for dir in 0..6usize {
+                let nx = (x as i32 + DX[dir]) as usize;
+                let ny = (y as i32 + DY[dir]) as usize;
+                let nz = (z as i32 + DZ[dir]) as usize;
+                // 範囲外
+                if nx >= d || ny >= d || nz >= d {
+                    continue;
+                }
+                // すでに同じブロック
+                if ans2[nx][ny][nz] == ans2[x][y][z] {
+                    continue;
+                }
+                // 実装がめんどいのでとりあえず1つだけをmerge
+                if ans2[nx][ny][nz] > 0 {
+                    let oldidx = ans2[nx][ny][nz] - 1;
+                    if block2[oldidx].len() != 1 {
+                        continue;
+                    }
+                    new_block2.push((nx, ny, nz));
+                    if is_same(&new_block1, &new_block2) {
+                        changed2 = ((nx, ny, nz), oldidx);
+                        break;
+                    } else {
+                        // revert
+                        new_block2.pop();
+                    }
+                }
+            }
+            if changed2.1 != 998244353 {
+                break;
+            }
+        }
+
+        if changed2.1 != 998244353 {
+            // apply
+            mem::swap(&mut block1[idx1], &mut new_block1);
+            mem::swap(&mut block2[idx2], &mut new_block2);
+            let (x, y, z) = changed1.0;
+            ans1[x][y][z] = idx1 + 1;
+            block1[changed1.1].clear();
+            let (x, y, z) = changed2.0;
+            ans2[x][y][z] = idx2 + 1;
+            block2[changed2.1].clear();
+            stats.1 += 1;
+        } else {
+            stats.3 += 1;
+        }
+    }
+    update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
+    remove_invisible_blocks(d, &mut block1, &mut block2, &mut ans1, &mut ans2);
     update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
 
     // 出力
