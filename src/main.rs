@@ -1,3 +1,5 @@
+extern crate rand;
+use rand::Rng;
 use std::{
     collections::HashSet,
     io,
@@ -123,6 +125,8 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
 fn main() {
     // 時間計測
     let start_time = Instant::now();
+    // 乱数
+    let mut rng = rand::thread_rng();
 
     let (d, sil1, sil2) = input();
 
