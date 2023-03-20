@@ -150,67 +150,19 @@ fn main() {
         }
     }
 
-    // すでに埋められているか管理
-    let mut silh1f = vec![vec![false; d]; d];
-    let mut silh1r = vec![vec![false; d]; d];
-    let mut silh2f = vec![vec![false; d]; d];
-    let mut silh2r = vec![vec![false; d]; d];
-    {
-        let mut cnt = 0;
-        // 最重要なものを真っ先にやる
-        for i in 0..d {
-            for j in 0..d {
-                for k in 0..d {
-                    if ans1[i][j][k] == INF && (!silh1f[i][k] && !silh1r[j][k]) {
-                        cnt += 1;
-                        ans1[i][j][k] = cnt;
-                        silh1f[i][k] = true;
-                        silh1r[j][k] = true;
-                    }
+    // 全部1x1x1としておく
+    let mut block1 = Vec::<Vec<(usize, usize, usize)>>::new();
+    let mut block2 = Vec::<Vec<(usize, usize, usize)>>::new();
+    for i in 0..d {
+        for j in 0..d {
+            for k in 0..d {
+                if ans1[i][j][k] > 0 {
+                    block1.push(vec![(i, j, k)]);
+                    ans1[i][j][k] = block1.len() as u32;
                 }
-            }
-        }
-        // その他
-        for i in 0..d {
-            for j in 0..d {
-                for k in 0..d {
-                    if ans1[i][j][k] == INF && (!silh1f[i][k] || !silh1r[j][k]) {
-                        cnt += 1;
-                        ans1[i][j][k] = cnt;
-                        silh1f[i][k] = true;
-                        silh1r[j][k] = true;
-                    } else if ans1[i][j][k] == INF {
-                        ans1[i][j][k] = 0;
-                    }
-                }
-            }
-        }
-    }
-    {
-        let mut cnt = 0;
-        for i in 0..d {
-            for j in 0..d {
-                for k in 0..d {
-                    if ans2[i][j][k] == INF && (!silh2f[i][k] && !silh2r[j][k]) {
-                        cnt += 1;
-                        ans2[i][j][k] = cnt;
-                        silh2f[i][k] = true;
-                        silh2r[j][k] = true;
-                    }
-                }
-            }
-        }
-        for i in 0..d {
-            for j in 0..d {
-                for k in 0..d {
-                    if ans2[i][j][k] == INF && (!silh2f[i][k] || !silh2r[j][k]) {
-                        cnt += 1;
-                        ans2[i][j][k] = cnt;
-                        silh2f[i][k] = true;
-                        silh2r[j][k] = true;
-                    } else if ans2[i][j][k] == INF {
-                        ans2[i][j][k] = 0;
-                    }
+                if ans2[i][j][k] > 0 {
+                    block2.push(vec![(i, j, k)]);
+                    ans2[i][j][k] = block2.len() as u32;
                 }
             }
         }
