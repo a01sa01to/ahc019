@@ -378,7 +378,7 @@ fn main() {
         stats.2 += 1;
 
         let mut new_block1 = block1[idx1].clone();
-        let mut changed1 = ((0, 0, 0), 998244353);
+        let mut changed1 = (Vec::<(usize, usize, usize)>::new(), 998244353);
         for &(x, y, z) in &block1[idx1] {
             for dir in 0..6usize {
                 let nx = (x as i32 + DX[dir]) as usize;
@@ -399,7 +399,8 @@ fn main() {
                         continue;
                     }
                     new_block1.push((nx, ny, nz));
-                    changed1 = ((nx, ny, nz), oldidx);
+                    changed1.0.push((nx, ny, nz));
+                    changed1.1 = oldidx;
                     break;
                 }
             }
@@ -412,7 +413,7 @@ fn main() {
         }
 
         let mut new_block2 = block2[idx2].clone();
-        let mut changed2 = ((0, 0, 0), 998244353);
+        let mut changed2 = (Vec::<(usize, usize, usize)>::new(), 998244353);
         for &(x, y, z) in &block2[idx2] {
             for dir in 0..6usize {
                 let nx = (x as i32 + DX[dir]) as usize;
@@ -434,7 +435,8 @@ fn main() {
                     }
                     new_block2.push((nx, ny, nz));
                     if is_same(&new_block1, &new_block2) {
-                        changed2 = ((nx, ny, nz), oldidx);
+                        changed2.0.push((nx, ny, nz));
+                        changed2.1 = oldidx;
                         break;
                     } else {
                         // revert
@@ -451,11 +453,13 @@ fn main() {
             // apply
             mem::swap(&mut block1[idx1], &mut new_block1);
             mem::swap(&mut block2[idx2], &mut new_block2);
-            let (x, y, z) = changed1.0;
-            ans1[x][y][z] = idx1 + 1;
+            for (x, y, z) in changed1.0 {
+                ans1[x][y][z] = idx1 + 1;
+            }
             block1[changed1.1].clear();
-            let (x, y, z) = changed2.0;
-            ans2[x][y][z] = idx2 + 1;
+            for (x, y, z) in changed2.0 {
+                ans2[x][y][z] = idx2 + 1;
+            }
             block2[changed2.1].clear();
             stats.1 += 1;
         } else {
