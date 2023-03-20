@@ -2,7 +2,7 @@ extern crate rand;
 use rand::Rng;
 use std::{
     collections::HashSet,
-    io,
+    io, mem,
     time::{Duration, Instant},
 };
 
@@ -101,7 +101,7 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
                 *x = max_y - *y;
                 *y = t;
             }
-            std::mem::swap(&mut max_x, &mut max_y);
+            mem::swap(&mut max_x, &mut max_y);
         }
         if i & 1 != 0 {
             for (_, y, z) in &mut b2 {
@@ -109,14 +109,14 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
                 *y = max_z - *z;
                 *z = t;
             }
-            std::mem::swap(&mut max_y, &mut max_z);
+            mem::swap(&mut max_y, &mut max_z);
         } else {
             for (x, _, z) in &mut b2 {
                 let t = *z;
                 *z = max_x - *x;
                 *x = t;
             }
-            std::mem::swap(&mut max_x, &mut max_z);
+            mem::swap(&mut max_x, &mut max_z);
         }
     }
     false
