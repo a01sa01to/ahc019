@@ -4,7 +4,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-const INF: u32 = 1_000_000_000;
+const INF: usize = 1_000_000_000;
 
 fn input() -> (
     usize,
@@ -36,7 +36,7 @@ fn input() -> (
     )
 }
 
-fn output(ans1: Vec<Vec<Vec<u32>>>, ans2: Vec<Vec<Vec<u32>>>) {
+fn output(ans1: Vec<Vec<Vec<usize>>>, ans2: Vec<Vec<Vec<usize>>>) {
     let mut set = ans1.iter().flatten().flatten().collect::<HashSet<_>>();
     set.extend(ans2.iter().flatten().flatten());
     eprintln!("{:?}", set);
@@ -121,7 +121,7 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
 }
 
 fn main() {
-    // 時間計測の準備
+    // 時間計測
     let start_time = Instant::now();
 
     let (d, sil1, sil2) = input();
@@ -158,11 +158,11 @@ fn main() {
             for k in 0..d {
                 if ans1[i][j][k] > 0 {
                     block1.push(vec![(i, j, k)]);
-                    ans1[i][j][k] = block1.len() as u32;
+                    ans1[i][j][k] = block1.len();
                 }
                 if ans2[i][j][k] > 0 {
                     block2.push(vec![(i, j, k)]);
-                    ans2[i][j][k] = block2.len() as u32;
+                    ans2[i][j][k] = block2.len();
                 }
             }
         }
@@ -171,6 +171,18 @@ fn main() {
     // 5s ぶんまわす
     while start_time.elapsed() < Duration::from_millis(5000) {
         // do something
+    }
+
+    // ブロックIDの修正
+    for (i, b) in block1.iter().enumerate() {
+        for &(x, y, z) in b {
+            ans1[x][y][z] = i + 1;
+        }
+    }
+    for (i, b) in block2.iter().enumerate() {
+        for &(x, y, z) in b {
+            ans2[x][y][z] = i + 1;
+        }
     }
 
     // 出力
