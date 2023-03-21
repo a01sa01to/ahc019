@@ -28,3 +28,13 @@ Local Score
   Average Score: 21,388,999,999.99
   Minimum Score: 3,333,333,333.00 on 18
   Maximum Score: 54,666,666,667.00 on 19
+  Standard Deviation: コピペ忘れ...
+
+--- Submission 5 ---
+Bug fix
+1x1x1 以外もつなげられるようにする -> 628,138,203,461
+Local Score
+  Average Score: 12085420745.92
+  Minimum Score: 1666666667.00 on 10
+  Maximum Score: 44266666667.00 on 63
+  Standard Deviation: 7610934780.38
