@@ -394,14 +394,13 @@ fn main() {
                 if ans1[nx1][ny1][nz1] == ans1[x1][y1][z1] {
                     continue;
                 }
-                // 実装がめんどいのでとりあえず1つだけをmerge
                 if ans1[nx1][ny1][nz1] > 0 {
                     let oldidx = ans1[nx1][ny1][nz1] - 1;
-                    if block1[oldidx].len() != 1 {
-                        continue;
-                    }
-                    new_block1.push((nx1, ny1, nz1));
-                    changed1.0.push((nx1, ny1, nz1));
+                    // if block1[oldidx].len() != 1 {
+                    //     continue;
+                    // }
+                    new_block1.extend(block1[oldidx].iter());
+                    changed1.0.extend(block1[oldidx].iter());
                     changed1.1 = oldidx;
 
                     for &(x2, y2, z2) in &block2[idx2] {
@@ -417,20 +416,21 @@ fn main() {
                             if ans2[nx2][ny2][nz2] == ans2[x2][y2][z2] {
                                 continue;
                             }
-                            // 実装がめんどいのでとりあえず1つだけをmerge
                             if ans2[nx2][ny2][nz2] > 0 {
                                 let oldidx = ans2[nx2][ny2][nz2] - 1;
-                                if block2[oldidx].len() != 1 {
-                                    continue;
-                                }
-                                new_block2.push((nx2, ny2, nz2));
+                                // if block2[oldidx].len() != 1 {
+                                //     continue;
+                                // }
+                                new_block2.extend(block2[oldidx].iter());
                                 if is_same(&new_block1, &new_block2) {
-                                    changed2.0.push((nx2, ny2, nz2));
+                                    changed2.0.extend(block2[oldidx].iter());
                                     changed2.1 = oldidx;
                                     break;
                                 } else {
                                     // revert
-                                    new_block2.pop();
+                                    for _ in 0..block2[oldidx].len() {
+                                        new_block2.pop();
+                                    }
                                 }
                             }
                         }
@@ -442,8 +442,10 @@ fn main() {
                         break;
                     } else {
                         // revert
-                        new_block1.pop();
-                        changed1.0.pop();
+                        for _ in 0..block1[oldidx].len() {
+                            new_block1.pop();
+                        }
+                        changed1.0.clear();
                         changed1.1 = 998244353;
                     }
                 }
