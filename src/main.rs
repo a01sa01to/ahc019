@@ -137,6 +137,7 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
 }
 
 fn update_block_id(
+    d: usize,
     block1: &mut Vec<Vec<(usize, usize, usize)>>,
     block2: &mut Vec<Vec<(usize, usize, usize)>>,
     ans1: &mut Vec<Vec<Vec<usize>>>,
@@ -154,10 +155,7 @@ fn update_block_id(
     let mut used = HashSet::<usize>::new();
     for (i2, b2) in block2.iter().enumerate() {
         for (i1, b1) in block1.iter().enumerate() {
-            if used.contains(&i1) {
-                continue;
-            }
-            if is_same(b1, b2) {
+            if !used.contains(&i1) && is_same(b1, b2) {
                 mp.insert(i2, i1);
                 used.insert(i1);
                 break;
@@ -179,6 +177,25 @@ fn update_block_id(
             } else {
                 nullcnt += 1;
                 ans2[x][y][z] = block1.len() + nullcnt;
+            }
+        }
+    }
+
+    // 新しく構築し直し
+    let l = block1.len() + nullcnt;
+    block1.clear();
+    block2.clear();
+    block1.resize(l, vec![]);
+    block2.resize(l, vec![]);
+    for i in 0..d {
+        for j in 0..d {
+            for k in 0..d {
+                if ans1[i][j][k] != 0 {
+                    block1[ans1[i][j][k] - 1].push((i, j, k));
+                }
+                if ans2[i][j][k] != 0 {
+                    block2[ans2[i][j][k] - 1].push((i, j, k));
+                }
             }
         }
     }
@@ -408,9 +425,9 @@ fn main() {
                 }
                 if ans1[nx1][ny1][nz1] > 0 {
                     let oldidx = ans1[nx1][ny1][nz1] - 1;
-                    // if block1[oldidx].len() != 1 {
-                    //     continue;
-                    // }
+                    if block1[oldidx].len() != 1 {
+                        continue;
+                    }
                     new_block1.extend(block1[oldidx].iter());
                     changed1 = oldidx;
 
@@ -429,9 +446,9 @@ fn main() {
                             }
                             if ans2[nx2][ny2][nz2] > 0 {
                                 let oldidx = ans2[nx2][ny2][nz2] - 1;
-                                // if block2[oldidx].len() != 1 {
-                                //     continue;
-                                // }
+                                if block2[oldidx].len() != 1 {
+                                    continue;
+                                }
                                 new_block2.extend(block2[oldidx].iter());
                                 if is_same(&new_block1, &new_block2) {
                                     changed2 = oldidx;
@@ -484,9 +501,9 @@ fn main() {
             stats.3 += 1;
         }
     }
-    update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
+    update_block_id(d, &mut block1, &mut block2, &mut ans1, &mut ans2);
     remove_invisible_blocks(d, &mut block1, &mut block2, &mut ans1, &mut ans2);
-    update_block_id(&mut block1, &mut block2, &mut ans1, &mut ans2);
+    update_block_id(d, &mut block1, &mut block2, &mut ans1, &mut ans2);
 
     // 出力
     eprintln!(
