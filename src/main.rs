@@ -7,9 +7,9 @@ use std::{
 };
 
 const INF: usize = 1_000_000_000;
-const DX: [usize; 6] = [1, 0, 0, !0, 0, 0];
-const DY: [usize; 6] = [0, 1, 0, 0, !0, 0];
-const DZ: [usize; 6] = [0, 0, 1, 0, 0, !0];
+const DX: [i32; 6] = [1, 0, 0, -1, 0, 0];
+const DY: [i32; 6] = [0, 1, 0, 0, -1, 0];
+const DZ: [i32; 6] = [0, 0, 1, 0, 0, -1];
 
 fn input() -> (
     usize,
@@ -390,14 +390,14 @@ fn main() {
         stats.2 += 1;
 
         let mut new_block1 = block1[idx1].clone();
-        let mut changed1 = (Vec::<(usize, usize, usize)>::new(), 998244353);
+        let mut changed1 = 998244353;
         let mut new_block2 = block2[idx2].clone();
-        let mut changed2 = (Vec::<(usize, usize, usize)>::new(), 998244353);
+        let mut changed2 = 998244353;
         for &(x1, y1, z1) in &block1[idx1] {
             for dir1 in 0..6usize {
-                let nx1 = x1 + DX[dir1];
-                let ny1 = y1 + DY[dir1];
-                let nz1 = z1 + DZ[dir1];
+                let nx1 = (x1 as i32 + DX[dir1]) as usize;
+                let ny1 = (y1 as i32 + DY[dir1]) as usize;
+                let nz1 = (z1 as i32 + DZ[dir1]) as usize;
                 // 範囲外
                 if nx1 >= d || ny1 >= d || nz1 >= d {
                     continue;
@@ -412,14 +412,13 @@ fn main() {
                     //     continue;
                     // }
                     new_block1.extend(block1[oldidx].iter());
-                    changed1.0.extend(block1[oldidx].iter());
-                    changed1.1 = oldidx;
+                    changed1 = oldidx;
 
                     for &(x2, y2, z2) in &block2[idx2] {
                         for dir2 in 0..6usize {
-                            let nx2 = x2 + DX[dir2];
-                            let ny2 = y2 + DY[dir2];
-                            let nz2 = z2 + DZ[dir2];
+                            let nx2 = (x2 as i32 + DX[dir2]) as usize;
+                            let ny2 = (y2 as i32 + DY[dir2]) as usize;
+                            let nz2 = (z2 as i32 + DZ[dir2]) as usize;
                             // 範囲外
                             if nx2 >= d || ny2 >= d || nz2 >= d {
                                 continue;
@@ -435,8 +434,7 @@ fn main() {
                                 // }
                                 new_block2.extend(block2[oldidx].iter());
                                 if is_same(&new_block1, &new_block2) {
-                                    changed2.0.extend(block2[oldidx].iter());
-                                    changed2.1 = oldidx;
+                                    changed2 = oldidx;
                                     break;
                                 } else {
                                     // revert
@@ -446,42 +444,41 @@ fn main() {
                                 }
                             }
                         }
-                        if changed2.1 != 998244353 {
+                        if changed2 != 998244353 {
                             break;
                         }
                     }
-                    if changed2.1 != 998244353 {
+                    if changed2 != 998244353 {
                         break;
                     } else {
                         // revert
                         for _ in 0..block1[oldidx].len() {
                             new_block1.pop();
                         }
-                        changed1.0.clear();
-                        changed1.1 = 998244353;
+                        changed1 = 998244353;
                     }
                 }
             }
-            if changed1.1 != 998244353 {
+            if changed1 != 998244353 {
                 break;
             }
         }
-        if changed1.1 == 998244353 {
+        if changed1 == 998244353 {
             continue;
         }
 
-        if changed2.1 != 998244353 {
+        if changed2 != 998244353 {
             // apply
-            mem::swap(&mut block1[idx1], &mut new_block1);
-            mem::swap(&mut block2[idx2], &mut new_block2);
-            for (x, y, z) in changed1.0 {
+            for &(x, y, z) in &block1[changed1] {
                 ans1[x][y][z] = idx1 + 1;
             }
-            block1[changed1.1].clear();
-            for (x, y, z) in changed2.0 {
+            for &(x, y, z) in &block2[changed2] {
                 ans2[x][y][z] = idx2 + 1;
             }
-            block2[changed2.1].clear();
+            mem::swap(&mut block1[idx1], &mut new_block1);
+            mem::swap(&mut block2[idx2], &mut new_block2);
+            block1[changed1].clear();
+            block2[changed2].clear();
             stats.1 += 1;
         } else {
             stats.3 += 1;
