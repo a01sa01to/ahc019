@@ -38,3 +38,11 @@ Local Score
   Minimum Score: 1666666667.00 on 10
   Maximum Score: 44266666667.00 on 63
   Standard Deviation: 7610934780.38
+
+--- Submission 6 ---
+不要ブロックを消す処理を改善 -> 653,090,909,090
+Local Score
+  Average Score: 11,859,603,285.65
+  Minimum Score: 1,250,000,000.00 on 77
+  Maximum Score: 35,450,000,000.00 on 63
+  Standard Deviation: 6,818,638,114.43
