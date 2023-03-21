@@ -425,9 +425,9 @@ fn main() {
                 }
                 if ans1[nx1][ny1][nz1] > 0 {
                     let oldidx = ans1[nx1][ny1][nz1] - 1;
-                    if block1[oldidx].len() != 1 {
-                        continue;
-                    }
+                    // if block1[oldidx].len() != 1 {
+                    //     continue;
+                    // }
                     new_block1.extend(block1[oldidx].iter());
                     changed1 = oldidx;
 
@@ -446,9 +446,9 @@ fn main() {
                             }
                             if ans2[nx2][ny2][nz2] > 0 {
                                 let oldidx = ans2[nx2][ny2][nz2] - 1;
-                                if block2[oldidx].len() != 1 {
-                                    continue;
-                                }
+                                // if block2[oldidx].len() != 1 {
+                                //     continue;
+                                // }
                                 new_block2.extend(block2[oldidx].iter());
                                 if is_same(&new_block1, &new_block2) {
                                     changed2 = oldidx;
@@ -481,6 +481,7 @@ fn main() {
             }
         }
         if changed1 == 998244353 {
+            stats.3 += 1;
             continue;
         }
 
@@ -497,8 +498,6 @@ fn main() {
             block1[changed1].clear();
             block2[changed2].clear();
             stats.1 += 1;
-        } else {
-            stats.3 += 1;
         }
     }
     update_block_id(d, &mut block1, &mut block2, &mut ans1, &mut ans2);
