@@ -7,9 +7,9 @@ use std::{
 };
 
 const INF: usize = 1_000_000_000;
-const DX: [i32; 6] = [1, 0, 0, -1, 0, 0];
-const DY: [i32; 6] = [0, 1, 0, 0, -1, 0];
-const DZ: [i32; 6] = [0, 0, 1, 0, 0, -1];
+const DX: [usize; 6] = [1, 0, 0, !0, 0, 0];
+const DY: [usize; 6] = [0, 1, 0, 0, !0, 0];
+const DZ: [usize; 6] = [0, 0, 1, 0, 0, !0];
 
 fn input() -> (
     usize,
@@ -69,9 +69,15 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
         let mut min_y = !0;
         let mut min_z = !0;
         for &(x, y, z) in b {
-            min_x = if min_x > x { x } else { min_x };
-            min_y = if min_y > y { y } else { min_y };
-            min_z = if min_z > z { z } else { min_z };
+            if min_x > x {
+                min_x = x;
+            }
+            if min_y > y {
+                min_y = y;
+            }
+            if min_z > z {
+                min_z = z;
+            }
         }
         b.iter()
             .map(|&(x, y, z)| (x - min_x, y - min_y, z - min_z))
@@ -87,9 +93,15 @@ fn is_same(b1: &Vec<(usize, usize, usize)>, b2: &Vec<(usize, usize, usize)>) -> 
     let mut max_y = 0;
     let mut max_z = 0;
     for &(x, y, z) in &b2 {
-        max_x = if max_x < x { x } else { max_x };
-        max_y = if max_y < y { y } else { max_y };
-        max_z = if max_z < z { z } else { max_z };
+        if max_x < x {
+            max_x = x;
+        }
+        if max_y < y {
+            max_y = y;
+        }
+        if max_z < z {
+            max_z = z;
+        }
     }
     b1.sort();
     for i in 0..6 {
@@ -383,9 +395,9 @@ fn main() {
         let mut changed2 = (Vec::<(usize, usize, usize)>::new(), 998244353);
         for &(x1, y1, z1) in &block1[idx1] {
             for dir1 in 0..6usize {
-                let nx1 = (x1 as i32 + DX[dir1]) as usize;
-                let ny1 = (y1 as i32 + DY[dir1]) as usize;
-                let nz1 = (z1 as i32 + DZ[dir1]) as usize;
+                let nx1 = x1 + DX[dir1];
+                let ny1 = y1 + DY[dir1];
+                let nz1 = z1 + DZ[dir1];
                 // 範囲外
                 if nx1 >= d || ny1 >= d || nz1 >= d {
                     continue;
@@ -405,9 +417,9 @@ fn main() {
 
                     for &(x2, y2, z2) in &block2[idx2] {
                         for dir2 in 0..6usize {
-                            let nx2 = (x2 as i32 + DX[dir2]) as usize;
-                            let ny2 = (y2 as i32 + DY[dir2]) as usize;
-                            let nz2 = (z2 as i32 + DZ[dir2]) as usize;
+                            let nx2 = x2 + DX[dir2];
+                            let ny2 = y2 + DY[dir2];
+                            let nz2 = z2 + DZ[dir2];
                             // 範囲外
                             if nx2 >= d || ny2 >= d || nz2 >= d {
                                 continue;
