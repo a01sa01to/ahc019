@@ -379,29 +379,73 @@ fn main() {
 
         let mut new_block1 = block1[idx1].clone();
         let mut changed1 = (Vec::<(usize, usize, usize)>::new(), 998244353);
-        for &(x, y, z) in &block1[idx1] {
-            for dir in 0..6usize {
-                let nx = (x as i32 + DX[dir]) as usize;
-                let ny = (y as i32 + DY[dir]) as usize;
-                let nz = (z as i32 + DZ[dir]) as usize;
+        let mut new_block2 = block2[idx2].clone();
+        let mut changed2 = (Vec::<(usize, usize, usize)>::new(), 998244353);
+        for &(x1, y1, z1) in &block1[idx1] {
+            for dir1 in 0..6usize {
+                let nx1 = (x1 as i32 + DX[dir1]) as usize;
+                let ny1 = (y1 as i32 + DY[dir1]) as usize;
+                let nz1 = (z1 as i32 + DZ[dir1]) as usize;
                 // 範囲外
-                if nx >= d || ny >= d || nz >= d {
+                if nx1 >= d || ny1 >= d || nz1 >= d {
                     continue;
                 }
                 // すでに同じブロック
-                if ans1[nx][ny][nz] == ans1[x][y][z] {
+                if ans1[nx1][ny1][nz1] == ans1[x1][y1][z1] {
                     continue;
                 }
                 // 実装がめんどいのでとりあえず1つだけをmerge
-                if ans1[nx][ny][nz] > 0 {
-                    let oldidx = ans1[nx][ny][nz] - 1;
+                if ans1[nx1][ny1][nz1] > 0 {
+                    let oldidx = ans1[nx1][ny1][nz1] - 1;
                     if block1[oldidx].len() != 1 {
                         continue;
                     }
-                    new_block1.push((nx, ny, nz));
-                    changed1.0.push((nx, ny, nz));
+                    new_block1.push((nx1, ny1, nz1));
+                    changed1.0.push((nx1, ny1, nz1));
                     changed1.1 = oldidx;
-                    break;
+
+                    for &(x2, y2, z2) in &block2[idx2] {
+                        for dir2 in 0..6usize {
+                            let nx2 = (x2 as i32 + DX[dir2]) as usize;
+                            let ny2 = (y2 as i32 + DY[dir2]) as usize;
+                            let nz2 = (z2 as i32 + DZ[dir2]) as usize;
+                            // 範囲外
+                            if nx2 >= d || ny2 >= d || nz2 >= d {
+                                continue;
+                            }
+                            // すでに同じブロック
+                            if ans2[nx2][ny2][nz2] == ans2[x2][y2][z2] {
+                                continue;
+                            }
+                            // 実装がめんどいのでとりあえず1つだけをmerge
+                            if ans2[nx2][ny2][nz2] > 0 {
+                                let oldidx = ans2[nx2][ny2][nz2] - 1;
+                                if block2[oldidx].len() != 1 {
+                                    continue;
+                                }
+                                new_block2.push((nx2, ny2, nz2));
+                                if is_same(&new_block1, &new_block2) {
+                                    changed2.0.push((nx2, ny2, nz2));
+                                    changed2.1 = oldidx;
+                                    break;
+                                } else {
+                                    // revert
+                                    new_block2.pop();
+                                }
+                            }
+                        }
+                        if changed2.1 != 998244353 {
+                            break;
+                        }
+                    }
+                    if changed2.1 != 998244353 {
+                        break;
+                    } else {
+                        // revert
+                        new_block1.pop();
+                        changed1.0.pop();
+                        changed1.1 = 998244353;
+                    }
                 }
             }
             if changed1.1 != 998244353 {
@@ -410,43 +454,6 @@ fn main() {
         }
         if changed1.1 == 998244353 {
             continue;
-        }
-
-        let mut new_block2 = block2[idx2].clone();
-        let mut changed2 = (Vec::<(usize, usize, usize)>::new(), 998244353);
-        for &(x, y, z) in &block2[idx2] {
-            for dir in 0..6usize {
-                let nx = (x as i32 + DX[dir]) as usize;
-                let ny = (y as i32 + DY[dir]) as usize;
-                let nz = (z as i32 + DZ[dir]) as usize;
-                // 範囲外
-                if nx >= d || ny >= d || nz >= d {
-                    continue;
-                }
-                // すでに同じブロック
-                if ans2[nx][ny][nz] == ans2[x][y][z] {
-                    continue;
-                }
-                // 実装がめんどいのでとりあえず1つだけをmerge
-                if ans2[nx][ny][nz] > 0 {
-                    let oldidx = ans2[nx][ny][nz] - 1;
-                    if block2[oldidx].len() != 1 {
-                        continue;
-                    }
-                    new_block2.push((nx, ny, nz));
-                    if is_same(&new_block1, &new_block2) {
-                        changed2.0.push((nx, ny, nz));
-                        changed2.1 = oldidx;
-                        break;
-                    } else {
-                        // revert
-                        new_block2.pop();
-                    }
-                }
-            }
-            if changed2.1 != 998244353 {
-                break;
-            }
         }
 
         if changed2.1 != 998244353 {
