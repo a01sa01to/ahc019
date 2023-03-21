@@ -213,19 +213,21 @@ fn remove_invisible_blocks(
     let mut filled2f = vec![vec![false; d]; d];
     let mut filled2r = vec![vec![false; d]; d];
     let mut todocommon = Vec::<usize>::new();
-    let mut todolater1 = Vec::<usize>::new();
-    let mut todolater2 = Vec::<usize>::new();
+    let mut todolater11 = Vec::<usize>::new();
+    let mut todolater12 = Vec::<usize>::new();
+    let mut todolater21 = Vec::<usize>::new();
+    let mut todolater22 = Vec::<usize>::new();
     for i in 0..block1.len().max(block2.len()) {
         let mut need_check = false;
 
         // 片方でしか使われてないやつはスキップ
         let mut skip = false;
         if i >= block1.len() || block1[i].len() == 0 {
-            todolater2.push(i);
+            todolater21.push(i);
             skip = true;
         }
         if i >= block2.len() || block2[i].len() == 0 {
-            todolater1.push(i);
+            todolater11.push(i);
             skip = true;
         }
         if skip {
@@ -295,7 +297,41 @@ fn remove_invisible_blocks(
             block2[i].clear();
         }
     }
-    for i in todolater1 {
+    for i in todolater11 {
+        let mut need_check = false;
+        for &(x, y, z) in &block1[i] {
+            if !filled1f[x][z] && !filled1r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        if need_check {
+            for &(x, y, z) in &block1[i] {
+                filled1f[x][z] = true;
+                filled1r[y][z] = true;
+            }
+        } else {
+            todolater12.push(i);
+        }
+    }
+    for i in todolater21 {
+        let mut need_check = false;
+        for &(x, y, z) in &block2[i] {
+            if !filled2f[x][z] && !filled2r[y][z] {
+                need_check = true;
+                break;
+            }
+        }
+        if need_check {
+            for &(x, y, z) in &block2[i] {
+                filled2f[x][z] = true;
+                filled2r[y][z] = true;
+            }
+        } else {
+            todolater22.push(i);
+        }
+    }
+    for i in todolater12 {
         let mut need_check = false;
         for &(x, y, z) in &block1[i] {
             if !filled1f[x][z] || !filled1r[y][z] {
@@ -315,7 +351,7 @@ fn remove_invisible_blocks(
             block1[i].clear();
         }
     }
-    for i in todolater2 {
+    for i in todolater22 {
         let mut need_check = false;
         for &(x, y, z) in &block2[i] {
             if !filled2f[x][z] || !filled2r[y][z] {
